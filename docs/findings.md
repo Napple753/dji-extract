@@ -1,7 +1,8 @@
 # Sample Footage Findings
 
 Verification of the open questions in the spec ("先に検証すること"), using the sample
-recording `DJI_20261102220407_0073_D.MP4` / `.LRF` (Osmo Action 6, recorded 2026-11-02).
+recording `DJI_20261102220407_0073_D.MP4` / `.LRF` (Osmo Action 6, recorded 2026-11-02
+in the Philippines, `Asia/Manila`, UTC+8).
 
 ## Ground truth
 
@@ -45,7 +46,7 @@ recording was ≈ 14:04:41.4. Using `creation_time − duration` would be off by
 
 ### UTC or local?
 
-**UTC.** The phone/computer clock was UTC+8 (local 22:04); `creation_time` is 14:04Z.
+**UTC.** Local time at the shooting location (Philippines, UTC+8) was 22:04; `creation_time` is 14:04Z.
 The file *name* is local time (22:04:07). So the time zone setting only matters for the
 EXIF `OffsetTimeOriginal` and display, not for computing the absolute instant.
 

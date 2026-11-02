@@ -9,7 +9,7 @@ private func utc(_ string: String) -> Date {
 }
 
 private let now = utc("2026-11-02T15:00:00.000Z")
-private let shanghai = TimeZone(identifier: "Asia/Shanghai")!
+private let manila = TimeZone(identifier: "Asia/Manila")!  // Sample footage was shot in the Philippines (UTC+8)
 
 @Suite struct CaptureTimeCalculatorTests {
     let calculator = CaptureTimeCalculator()
@@ -41,10 +41,10 @@ private let shanghai = TimeZone(identifier: "Asia/Shanghai")!
 
     @Test func captureTimeAddsPositionAndOffset() {
         let start = utc("2026-11-02T14:04:10.000Z")
-        let adjustment = CaptureTimeAdjustment(offset: -2.25, timeZone: shanghai)
+        let adjustment = CaptureTimeAdjustment(offset: -2.25, timeZone: manila)
         let stamp = calculator.captureTime(recordingStart: start, position: 12.5, adjustment: adjustment)
         #expect(stamp.date == utc("2026-11-02T14:04:20.250Z"))
-        #expect(stamp.timeZone == shanghai)
+        #expect(stamp.timeZone == manila)
     }
 
     @Test func chainedStartFollowsPreviousSegment() {
@@ -61,7 +61,7 @@ private let shanghai = TimeZone(identifier: "Asia/Shanghai")!
         let start = try calculator.recordingStart(
             creationTime: utc("2026-11-02T14:04:09.000Z"), duration: 30.739042, now: now)
         let stamp = calculator.captureTime(
-            recordingStart: start, position: Double(frame) * frameDuration, adjustment: .init(timeZone: shanghai))
+            recordingStart: start, position: Double(frame) * frameDuration, adjustment: .init(timeZone: manila))
         let flip = utc("2026-11-02T\(flipsTo).000Z")
         let error = stamp.date.timeIntervalSince(flip)
         #expect(abs(error) < frameDuration + 0.05, "error \(error) s at frame \(frame)")
@@ -70,7 +70,7 @@ private let shanghai = TimeZone(identifier: "Asia/Shanghai")!
 
 @Suite struct CaptureTimestampTests {
     @Test func exifFieldsUseLocalTimeAndOffset() {
-        let stamp = CaptureTimestamp(date: utc("2026-11-02T14:04:10.6875Z"), timeZone: shanghai)
+        let stamp = CaptureTimestamp(date: utc("2026-11-02T14:04:10.6875Z"), timeZone: manila)
         #expect(stamp.exifDateTime == "2026:11:02 22:04:10")
         #expect(stamp.exifSubSecond == "687")
         #expect(stamp.exifOffset == "+08:00")

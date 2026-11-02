@@ -97,9 +97,6 @@ public struct CaptureTimeCalculator: Sendable {
         position: TimeInterval,
         adjustment: CaptureTimeAdjustment
     ) -> CaptureTimestamp {
-        CaptureTimestamp(
-            date: recordingStart.addingTimeInterval(position + adjustment.offset),
-            timeZone: adjustment.timeZone
-        )
+        CaptureClock(recordingStart: recordingStart, adjustment: adjustment).timestamp(at: position)
     }
 }
