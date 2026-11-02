@@ -1,0 +1,15 @@
+# Camera sample footage (large; kept locally only)
+*.MP4
+*.LRF
+*.mp4
+*.MOV
+
+# Xcode / SwiftPM
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata/
+
+.DS_Store
