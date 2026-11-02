@@ -1,0 +1,44 @@
+# Generate DJIExtract.xcodeproj with `xcodegen generate`.
+name: DJIExtract
+options:
+  bundleIdPrefix: com.napple753
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+packages:
+  DJIExtract:
+    path: .
+targets:
+  DJIExtract:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: DJIExtract
+        product: DJIExtractUI
+    settings:
+      base:
+        # Fixed up front: free accounts can only create a few App IDs per 7 days.
+        PRODUCT_BUNDLE_IDENTIFIER: com.napple753.DJIExtract
+        PRODUCT_NAME: DJI Extract
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        # Set your (free) Personal Team in Xcode > Signing & Capabilities.
+        DEVELOPMENT_TEAM: ""
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: DJI Extract
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: Saves the photos, Live Photos and videos you cut from the camera, with their capture dates.
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+schemes:
+  DJIExtract:
+    build:
+      targets:
+        DJIExtract: all
+    run:
+      config: Debug
