@@ -179,6 +179,8 @@ private final class SampleTransfer: @unchecked Sendable {
     private let output: AVAssetReaderOutput
     private let input: AVAssetWriterInput
     private let queue = DispatchQueue(label: "LivePhotoExporter.SampleTransfer")
+    /// Only touched on `queue`.
+    private var finished = false
 
     init(output: AVAssetReaderOutput, input: AVAssetWriterInput) {
         self.output = output
@@ -187,7 +189,6 @@ private final class SampleTransfer: @unchecked Sendable {
 
     func run() async {
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            var finished = false
             input.requestMediaDataWhenReady(on: queue) { [self] in
                 guard !finished else { return }
                 while input.isReadyForMoreMediaData {
