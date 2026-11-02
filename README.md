@@ -49,7 +49,7 @@ them are skipped when they are missing.
 5. While the camera occupies the USB-C port, connect to Xcode over the network, or use the in-app
    Log screen.
 
-The bundle ID is fixed to `com.napple753.DJIExtract`.
+The bundle ID is fixed to `xyz.napple.DJIExtract`.
 
 ## Status
 

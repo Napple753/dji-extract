@@ -1,7 +1,7 @@
 # Generate DJIExtract.xcodeproj with `xcodegen generate`.
 name: DJIExtract
 options:
-  bundleIdPrefix: com.napple753
+  bundleIdPrefix: xyz.napple
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
@@ -20,7 +20,7 @@ targets:
     settings:
       base:
         # Fixed up front: free accounts can only create a few App IDs per 7 days.
-        PRODUCT_BUNDLE_IDENTIFIER: com.napple753.DJIExtract
+        PRODUCT_BUNDLE_IDENTIFIER: xyz.napple.DJIExtract
         PRODUCT_NAME: DJI Extract
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
