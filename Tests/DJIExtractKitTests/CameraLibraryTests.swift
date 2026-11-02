@@ -14,7 +14,8 @@ final class CameraLibraryTests {
         root = FileManager.default.temporaryDirectory.appending(path: "CameraLibraryTests-\(UUID().uuidString)/CARD")
         let folder = root.appending(path: "DCIM/DJI_001")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        for file in [SampleFootage.main, SampleFootage.preview] {
+        // Resolve symlinks first: linking a symlink would not give a regular file.
+        for file in [SampleFootage.main, SampleFootage.preview].map({ $0.resolvingSymlinksInPath() }) {
             let target = folder.appending(path: file.lastPathComponent)
             do { try FileManager.default.linkItem(at: file, to: target) } catch { try FileManager.default.copyItem(at: file, to: target) }
         }

@@ -28,19 +28,27 @@ T_capture = creation_time + startLatency + t + Δ
 | `App/` | iOS app entry point |
 | `project.yml` | XcodeGen spec for `DJIExtract.xcodeproj` |
 
-## Tests (no Xcode needed)
+## Tests
 
 ```sh
-scripts/test.sh            # Core + Kit tests; Kit tests use the sample footage at the repo root
-scripts/typecheck-ui.sh    # type-checks the SwiftUI target with the Command Line Tools
+swift test    # Core + Kit tests on macOS; Kit tests use the sample footage at the repo root
 ```
 
 The sample `DJI_20261102220407_0073_D.MP4` / `.LRF` are not committed. Kit tests that need
-them are skipped when they are missing.
+them are skipped when they are missing. The same tests also pass on the iOS Simulator
+(`xcodebuild test -scheme DJIExtract-Package`, run from a copy of the package without
+`DJIExtract.xcodeproj`, since xcodebuild prefers the project when both exist).
 
-## Building for the iPhone (manual steps)
+## Building
 
-1. Install Xcode 26 and run `xcodegen generate` (after changing `project.yml`).
+```sh
+xcodegen generate   # after changing project.yml
+xcodebuild -project DJIExtract.xcodeproj -scheme DJIExtract -destination 'generic/platform=iOS Simulator' build
+```
+
+## Installing on the iPhone (manual steps)
+
+1. Requires Xcode 26 or later (built with Xcode 27.2).
 2. Open `DJIExtract.xcodeproj`, add your Apple ID in Xcode > Settings > Accounts, and choose the
    Personal Team under Signing & Capabilities.
 3. Enable Developer Mode on the iPhone, build and run once from Xcode, and trust the developer
@@ -53,8 +61,9 @@ The bundle ID is fixed to `xyz.napple.DJIExtract`.
 
 ## Status
 
-Implemented: everything in the spec's first version, verified on macOS against the sample footage
-(metadata, HEIC/EXIF, lossless and accurate clips, Live Photo files). Not yet verified on device:
+Implemented: everything in the spec's first version, verified on macOS and the iOS Simulator
+against the sample footage (metadata, HEIC/EXIF, lossless and accurate clips, Live Photo files).
+The app builds for the simulator and for devices (unsigned). Not yet verified on device:
 USB folder access, playback, Photos saving, Live Photo playback in Photos, cable-pull handling.
 
 Open items:
