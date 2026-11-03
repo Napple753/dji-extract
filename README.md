@@ -56,9 +56,23 @@ xcodegen generate
 xcodebuild -project DJIExtract.xcodeproj -scheme DJIExtract -destination 'generic/platform=iOS Simulator' build
 ```
 
-## Installing on the iPhone (manual steps)
+## Installing on the iPhone
 
 A free Personal Team cannot sign in CI, so the IPA is signed on install with your Apple ID.
+
+With the iPhone connected and unlocked, run:
+
+```sh
+scripts/install-latest.sh [run-id]
+```
+
+It downloads the IPA from the latest successful Build run on main (or the given run),
+signs it with the newest unexpired Xcode provisioning profile for `xyz.napple.DJIExtract`
+and its certificate from the keychain, and installs it with `devicectl`. The profile comes
+from building the app once from Xcode with the Personal Team; when it expires (7 days),
+build from Xcode again to renew it.
+
+Manual alternative:
 
 1. Download `DJIExtract-unsigned.ipa` from the latest successful Build run
    (`gh run download -n DJIExtract-unsigned-ipa`).
