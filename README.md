@@ -3,7 +3,10 @@
 Personal iOS app that cuts photos, Live Photos and short videos out of Osmo Action 6
 recordings over USB-C and saves them to Photos with the capture time of the cut frame.
 
-Spec (Japanese): `Osmo Action 6 切り出しアプリ 仕様書（USB接続版）.md`.
+> This repository is public only so it can use GitHub Actions for free. It is built for my own
+> use and is not intended for use by anyone else; no support, issues or pull requests are expected.
+
+Spec: [docs/spec.md](docs/spec.md).
 Sample footage verification: [docs/findings.md](docs/findings.md).
 
 ## Capture time
