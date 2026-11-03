@@ -41,29 +41,39 @@ them are skipped when they are missing. The same tests also pass on the iOS Simu
 
 ## Building
 
+The app is built on GitHub Actions ([.github/workflows/build.yml](.github/workflows/build.yml)), since
+a local Xcode build needs more memory than the development Mac has. Every push to `main`, pull
+request and manual run (Actions > Build > Run workflow) does two jobs:
+
+- `test`: `swift test` (Kit tests needing the sample footage are skipped).
+- `ipa`: `xcodegen generate`, then an unsigned Release build for devices, uploaded as the
+  `DJIExtract-unsigned-ipa` artifact (kept 14 days).
+
+`DJIExtract.xcodeproj` is generated and not committed. To build locally anyway:
+
 ```sh
-xcodegen generate   # after changing project.yml
+xcodegen generate
 xcodebuild -project DJIExtract.xcodeproj -scheme DJIExtract -destination 'generic/platform=iOS Simulator' build
 ```
 
 ## Installing on the iPhone (manual steps)
 
-1. Requires Xcode 26 or later (built with Xcode 27.2).
-2. Open `DJIExtract.xcodeproj`, add your Apple ID in Xcode > Settings > Accounts, and choose the
-   Personal Team under Signing & Capabilities.
-3. Enable Developer Mode on the iPhone, build and run once from Xcode, and trust the developer
-   in Settings > General > VPN & Device Management.
-4. The free-account build expires after 7 days; run it again from Xcode to renew.
-5. While the camera occupies the USB-C port, connect to Xcode over the network, or use the in-app
-   Log screen.
+A free Personal Team cannot sign in CI, so the IPA is signed on install with your Apple ID.
 
-The bundle ID is fixed to `xyz.napple.DJIExtract`.
+1. Download `DJIExtract-unsigned.ipa` from the latest successful Build run
+   (`gh run download -n DJIExtract-unsigned-ipa`).
+2. Sign and install it with a sideloading tool such as Sideloadly, using your Apple ID
+   (the same one as the Personal Team). Keep the bundle ID `xyz.napple.DJIExtract`.
+3. Enable Developer Mode on the iPhone and trust the developer in
+   Settings > General > VPN & Device Management.
+4. The free-account signature expires after 7 days; sign and install again to renew.
+5. Debugger access is not available this way; use the in-app Log screen.
 
 ## Status
 
 Implemented: everything in the spec's first version, verified on macOS and the iOS Simulator
 against the sample footage (metadata, HEIC/EXIF, lossless and accurate clips, Live Photo files).
-The app builds for the simulator and for devices (unsigned). Not yet verified on device:
+The app builds for the simulator and for devices (unsigned, in CI). Not yet verified on device:
 USB folder access, playback, Photos saving, Live Photo playback in Photos, cable-pull handling.
 
 Open items:

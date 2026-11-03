@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      # Kit tests that need the sample footage are skipped (it is not committed).
+      - run: swift test
+
+  ipa:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      # Unsigned: a free Personal Team cannot sign in CI. Re-sign on install (see README).
+      - name: Build
+        run: |
+          xcodebuild -project DJIExtract.xcodeproj -scheme DJIExtract \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build
+      - name: Package IPA
+        run: |
+          mkdir Payload
+          cp -R "build/Build/Products/Release-iphoneos/DJI Extract.app" Payload/
+          zip -qry DJIExtract-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DJIExtract-unsigned-ipa
+          path: DJIExtract-unsigned.ipa
+          retention-days: 14
