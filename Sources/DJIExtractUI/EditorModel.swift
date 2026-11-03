@@ -25,12 +25,15 @@ final class EditorModel {
     var markIn: TimeInterval?
     var markOut: TimeInterval?
     /// Non-nil while the save screen is shown.
-    var saveModel: SaveModel?
+    var saveModel: SaveModel? {
+        didSet { if saveModel == nil, oldValue != nil { resumePreview() } }
+    }
 
     var settings: VideoSettings {
         didSet { app.settings.save(settings, for: video) }
     }
 
+    @ObservationIgnored private var item: AVPlayerItem?
     @ObservationIgnored private var timeObserver: Any?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
 
@@ -59,11 +62,14 @@ final class EditorModel {
     }
 
     private func attach(_ item: AVPlayerItem) {
+        self.item = item
         player.replaceCurrentItem(with: item)
         timeObserver = player.addPeriodicTimeObserver(
             forInterval: CMTime(value: 1, timescale: 30), queue: .main
         ) { [weak self] time in
             MainActor.assumeIsolated {
+                // Keep the position while the preview is detached for saving.
+                guard self?.player.currentItem != nil, time.isNumeric else { return }
                 self?.position = time.seconds
                 self?.isPlaying = self?.player.timeControlStatus != .paused
             }
@@ -83,9 +89,24 @@ final class EditorModel {
 
     func close() {
         player.pause()
+        player.replaceCurrentItem(with: nil)
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
         statusObservation = nil
+        item = nil
+    }
+
+    /// Detaches the preview while saving, so the paused player stops buffering from the camera
+    /// and the main-file export has the USB bandwidth to itself.
+    private func suspendPreview() {
+        player.pause()
+        player.replaceCurrentItem(with: nil)
+    }
+
+    private func resumePreview() {
+        guard let item, player.currentItem == nil else { return }
+        player.replaceCurrentItem(with: item)
+        seek(to: position, exact: true)
     }
 
     // MARK: Transport
@@ -160,7 +181,7 @@ final class EditorModel {
 
     func beginSave(_ kind: SaveKind) {
         guard let metadata else { return }
-        player.pause()
+        suspendPreview()
         let position: TimeInterval
         switch kind {
         case .photo, .livePhoto: position = mainPosition

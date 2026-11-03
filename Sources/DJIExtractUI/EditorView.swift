@@ -32,7 +32,8 @@ struct EditorView: View {
             self.model = model
             await model.load()
         }
-        .onDisappear { model?.close() }
+        // Pushing the save screen also triggers this; the editor is only closed when leaving it.
+        .onDisappear { if model?.saveModel == nil { model?.close() } }
     }
 
     @ViewBuilder

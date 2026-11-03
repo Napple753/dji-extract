@@ -3,6 +3,9 @@ import DJIExtractCore
 import DJIExtractKit
 import Foundation
 import Observation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum SaveKind: Hashable {
     case photo
@@ -112,6 +115,9 @@ final class SaveModel: Identifiable, Hashable {
             return
         }
         state = .exporting(progress: nil)
+        // A long export is cancelled if the screen locks and the app is suspended.
+        setIdleTimerDisabled(true)
+        defer { setIdleTimerDisabled(false) }
         let workspace: ExportWorkspace
         do {
             workspace = try ExportWorkspace.create()
@@ -148,7 +154,13 @@ final class SaveModel: Identifiable, Hashable {
         }
     }
 
-    private func handle(_ error: any Error) {
+    private func setIdleTimerDisabled(_ disabled: Bool) {
+        #if canImport(UIKit)
+        UIApplication.shared.isIdleTimerDisabled = disabled
+        #endif
+    }
+
+        private func handle(_ error: any Error) {
         app.log.error("Save \(kind.title) failed: \(error)")
         switch error {
         case PhotoLibraryError.accessDenied:
