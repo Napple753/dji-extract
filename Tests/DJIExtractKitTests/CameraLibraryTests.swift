@@ -52,14 +52,13 @@ final class CameraLibraryTests {
         _ = try await cache.thumbnail(for: video, in: library)
     }
 
-    @Test func previewUsesLocalLRFCopy() async throws {
+    @Test func previewPlaysLRFInPlace() async throws {
         let library = try CameraLibrary.open(pickedFolder: root, defaults: defaults)
         let video = try #require(try library.scan().first)
         let metadata = try await VideoMetadataReader.read(library.url(for: video.main))
         let preview = await PreviewSource.prepare(for: video, mainMetadata: metadata, in: library)
-        defer { preview.discard() }
-        #expect(preview.kind == .localPreview)
-        #expect(preview.url.pathExtension == "mp4")
+        #expect(preview.kind == .lrf)
+        #expect(preview.asset.url == library.url(for: try #require(video.preview)))
         #expect(abs(preview.mainPosition(forPlayer: 12) - 12) < 0.001)
     }
 }

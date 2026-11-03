@@ -6,7 +6,7 @@ import Observation
 
 /// Step 3: playback, frame stepping and choosing what to cut.
 ///
-/// Plays the local LRF copy when possible; all positions handed to export are main-file seconds.
+/// Plays the LRF when possible; all positions handed to export are main-file seconds.
 @MainActor @Observable
 final class EditorModel {
     let video: CameraVideo
@@ -50,8 +50,8 @@ final class EditorModel {
             self.metadata = metadata
             let source = await PreviewSource.prepare(for: video, mainMetadata: metadata, in: library)
             self.source = source
-            app.log.info("Opened \(video.fileName) (\(source.kind == .localPreview ? "LRF preview" : "main file"))")
-            attach(AVPlayerItem(url: source.url))
+            app.log.info("Opened \(video.fileName) (\(source.kind == .lrf ? "LRF preview" : "main file"))")
+            attach(AVPlayerItem(asset: source.asset))
         } catch {
             loadError = "Cannot read this video. \(error.localizedDescription)"
             app.log.error("Open \(video.fileName): \(error)")
@@ -77,10 +77,8 @@ final class EditorModel {
     private func playbackFailed(_ error: (any Error)?) {
         player.pause()
         app.log.error("Playback failed: \(String(describing: error))")
-        // Only the main file is read from the camera during playback.
-        if source?.kind == .mainFile || !app.isCameraReachable {
-            app.disconnect(message: "Playback stopped. Reconnect the camera and choose the folder again.")
-        }
+        // Playback reads from the camera, so a failure usually means it was disconnected.
+        app.disconnect(message: "Playback stopped. Reconnect the camera and choose the folder again.")
     }
 
     func close() {
@@ -88,7 +86,6 @@ final class EditorModel {
         if let timeObserver { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
         statusObservation = nil
-        source?.discard()
     }
 
     // MARK: Transport
