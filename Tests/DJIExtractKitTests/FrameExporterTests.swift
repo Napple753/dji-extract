@@ -16,7 +16,7 @@ struct FrameExporterTests {
         let metadata = try await VideoMetadataReader.read(asset)
         let start = try CaptureTimeCalculator().recordingStart(
             creationTime: metadata.creationTime, duration: metadata.duration)
-        let clock = CaptureClock(recordingStart: start, adjustment: .init(timeZone: manila))
+        let clock = CaptureClock(recordingStart: start, adjustment: .init(offset: SampleFootage.measuredOffset, timeZone: manila))
 
         // Live Photo identifiers are UUIDs; ImageIO stores MakerApple key 17 as a 36-byte field.
         let contentIdentifier = UUID().uuidString

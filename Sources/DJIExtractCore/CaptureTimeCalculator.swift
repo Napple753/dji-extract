@@ -22,8 +22,10 @@ public struct CameraTimingProfile: Codable, Hashable, Sendable {
         self.startLatency = startLatency
     }
 
-    /// Measured on 2026-11-02: `creation_time` is UTC start, ~1.69 s before frame 0.
-    public static let osmoAction6 = CameraTimingProfile(reference: .start, startLatency: 1.7)
+    /// `creation_time` is the UTC start. No latency is applied: the gap to the real capture
+    /// time (~1.7 s in the 2026-11-02 sample) depends on the camera clock's error, so it is
+    /// left to the per-video offset Δ.
+    public static let osmoAction6 = CameraTimingProfile(reference: .start, startLatency: 0)
 }
 
 /// Per-video correction chosen by the user.

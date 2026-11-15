@@ -10,6 +10,9 @@ enum SampleFootage {
     static let main = root.appending(path: "DJI_20261102220407_0073_D.MP4")
     static let preview = root.appending(path: "DJI_20261102220407_0073_D.LRF")
 
+    /// Δ that lines the sample up with its on-screen UTC clock (docs/findings.md).
+    static let measuredOffset: TimeInterval = 1.7
+
     static var isAvailable: Bool {
         FileManager.default.fileExists(atPath: main.path) && FileManager.default.fileExists(atPath: preview.path)
     }

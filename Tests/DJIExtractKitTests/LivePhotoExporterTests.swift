@@ -16,7 +16,7 @@ struct LivePhotoExporterTests {
         let asset = AVURLAsset(url: SampleFootage.main)
         let metadata = try await VideoMetadataReader.read(asset)
         let start = try CaptureTimeCalculator().recordingStart(creationTime: metadata.creationTime, duration: metadata.duration)
-        let clock = CaptureClock(recordingStart: start, adjustment: .init(timeZone: manila))
+        let clock = CaptureClock(recordingStart: start, adjustment: .init(offset: SampleFootage.measuredOffset, timeZone: manila))
 
         let live = try await LivePhotoExporter.export(
             from: asset, stillTime: CMTime(seconds: still, preferredTimescale: 600), clock: clock, workspace: workspace)

@@ -62,16 +62,16 @@ The 1.69 s mixes three things that a single sample cannot separate:
 - a fixed pipeline delay between "record start" and the first encoded frame,
 - the camera's clock error against UTC at the time of recording.
 
-**Decision:** add a per-camera calibration constant `startLatency = 1.7 s`, applied before the
-user's Δ:
+**Decision (revised 2026-11-15):** the profile keeps a `startLatency` field but sets it to 0 for
+the Osmo Action 6. Because the gap depends on the camera clock's error, a fixed value is wrong as
+often as it is right; the user corrects it per video with Δ (+1.7 s for this sample).
 
 ```
 T_capture = creation_time + startLatency + t + Δ
 ```
 
-This keeps Δ = 0 as the user-facing default as the spec requires. Re-measure with a few more
-clock recordings (ideally started at different sub-second phases) and update the constant
-if the spread exceeds ±0.5 s.
+Re-measure with a few more clock recordings (ideally started at different sub-second phases)
+to see whether a fixed pipeline delay can be separated out.
 
 ### LRF vs. main file
 
@@ -89,7 +89,7 @@ Not verified — no long recording in the sample set yet.
 
 - `VideoMetadataReader` reads the movie-level creation date (`AVAsset.creationDate`) and
   treats it as UTC start.
-- `CaptureTimeCalculator` gets a `startLatency` input (default 1.7 s for Osmo Action 6),
+- `CaptureTimeCalculator` gets a `startLatency` input (0 for Osmo Action 6; see above),
   separate from the user offset Δ.
 - The LRF can be mapped to the main file 1:1 by time (ratio of durations = 1.0 here).
 - The 10-bit HEVC source means frame extraction must handle 10-bit → HEIC conversion

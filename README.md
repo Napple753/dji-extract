@@ -16,7 +16,8 @@ T_capture = creation_time + startLatency + t + Δ
 ```
 
 - `creation_time` is the UTC start of the file (measured, see findings).
-- `startLatency` = 1.7 s for Osmo Action 6 (measured from a clock recording).
+- `startLatency` = 0 for Osmo Action 6. The sample clip needed +1.7 s, but that depends on the
+  camera clock's error, so it is corrected per video through Δ instead.
 - `t` is the position of the frame in the main file, `Δ` the per-video user offset (default 0).
 - The time zone only affects EXIF offsets and display; it defaults to the iPhone's current zone
   and can be changed per video.
@@ -95,7 +96,7 @@ USB folder access, playback, Photos saving, Live Photo playback in Photos, cable
 
 Open items:
 
-- Re-measure `startLatency` with more clock recordings (single sample so far).
+- Re-measure the start gap with more clock recordings to see whether a fixed part exists.
 - Split recordings (no sample yet).
 - HDR / 10-bit to SDR conversion for stills (currently AVFoundation's `forceSDR`).
 - Live Photo length (fixed at 3 s for now).

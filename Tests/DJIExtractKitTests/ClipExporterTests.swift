@@ -11,7 +11,7 @@ struct ClipExporterTests {
     func clock(for asset: AVAsset) async throws -> CaptureClock {
         let metadata = try await VideoMetadataReader.read(asset)
         let start = try CaptureTimeCalculator().recordingStart(creationTime: metadata.creationTime, duration: metadata.duration)
-        return CaptureClock(recordingStart: start, adjustment: .init(timeZone: manila))
+        return CaptureClock(recordingStart: start, adjustment: .init(offset: SampleFootage.measuredOffset, timeZone: manila))
     }
 
     @Test(arguments: ClipExportMode.allCases)

@@ -53,15 +53,15 @@ private let manila = TimeZone(identifier: "Asia/Manila")!  // Sample footage was
     }
 
     /// Ground truth from the sample clip (docs/findings.md): the on-screen UTC clock flips to the
-    /// given second at the given frame index. With the Osmo Action 6 profile and Δ = 0 the
-    /// computed time must be within one frame plus a small margin of the flip.
+    /// given second at the given frame index. With the Osmo Action 6 profile and the Δ measured
+    /// for that clip (+1.7 s) the computed time must be within one frame plus a small margin of the flip.
     @Test(arguments: [(8, "14:04:11"), (56, "14:04:13"), (703, "14:04:40"), (727, "14:04:41")])
     func osmoAction6SampleMatchesOnScreenClock(frame: Int, flipsTo: String) throws {
         let frameDuration = 1001.0 / 24000.0
         let start = try calculator.recordingStart(
             creationTime: utc("2026-11-02T14:04:09.000Z"), duration: 30.739042, now: now)
         let stamp = calculator.captureTime(
-            recordingStart: start, position: Double(frame) * frameDuration, adjustment: .init(timeZone: manila))
+            recordingStart: start, position: Double(frame) * frameDuration, adjustment: .init(offset: 1.7, timeZone: manila))
         let flip = utc("2026-11-02T\(flipsTo).000Z")
         let error = stamp.date.timeIntervalSince(flip)
         #expect(abs(error) < frameDuration + 0.05, "error \(error) s at frame \(frame)")
