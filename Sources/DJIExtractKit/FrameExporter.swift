@@ -45,45 +45,63 @@ public enum FrameExporter {
         let frame = try await frame(of: asset, at: time)
         let position = frame.time.seconds
         let timestamp = clock.timestamp(at: position)
-        try writeHEIC(frame.image, timestamp: timestamp, contentIdentifier: contentIdentifier, to: url)
+        let camera = await CameraMetadataReader.read(asset, frameAt: frame.time)
+        try writeHEIC(frame.image, timestamp: timestamp, camera: camera, contentIdentifier: contentIdentifier, to: url)
         return ExportedPhoto(url: url, timestamp: timestamp, position: position)
     }
 
-    /// Writes `image` as HEIC with EXIF/TIFF dates, camera identity and, for Live Photos,
-    /// the Apple MakerNote content identifier (key 17).
+    /// Writes `image` as HEIC with EXIF/TIFF dates, camera model and exposure and, for Live
+    /// Photos, the Apple MakerNote content identifier (key 17).
     public static func writeHEIC(
         _ image: CGImage,
         timestamp: CaptureTimestamp,
+        camera: CameraInfo = .unknown,
         contentIdentifier: String? = nil,
         to url: URL
     ) throws {
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.heic.identifier as CFString, 1, nil) else {
             throw ExportError.cannotCreateDestination
         }
-        CGImageDestinationAddImage(destination, image, properties(timestamp: timestamp, contentIdentifier: contentIdentifier) as CFDictionary)
+        let properties = properties(timestamp: timestamp, camera: camera, contentIdentifier: contentIdentifier)
+        CGImageDestinationAddImage(destination, image, properties as CFDictionary)
         guard CGImageDestinationFinalize(destination) else {
             throw ExportError.exportFailed("HEIC encoding failed")
         }
     }
 
-    static func properties(timestamp: CaptureTimestamp, contentIdentifier: String?) -> [CFString: Any] {
+    static func properties(timestamp: CaptureTimestamp, camera: CameraInfo, contentIdentifier: String?) -> [CFString: Any] {
+        var exif: [CFString: Any] = [
+            kCGImagePropertyExifDateTimeOriginal: timestamp.exifDateTime,
+            kCGImagePropertyExifDateTimeDigitized: timestamp.exifDateTime,
+            kCGImagePropertyExifSubsecTimeOriginal: timestamp.exifSubSecond,
+            kCGImagePropertyExifSubsecTimeDigitized: timestamp.exifSubSecond,
+            kCGImagePropertyExifOffsetTimeOriginal: timestamp.exifOffset,
+            kCGImagePropertyExifOffsetTimeDigitized: timestamp.exifOffset,
+            kCGImagePropertyExifOffsetTime: timestamp.exifOffset,
+        ]
+        if let exposure = camera.exposure {
+            if let iso = exposure.iso {
+                exif[kCGImagePropertyExifISOSpeedRatings] = [Int(iso.rounded())]
+            }
+            if let time = exposure.exposureTime {
+                exif[kCGImagePropertyExifExposureTime] = time.seconds
+            }
+            if let zoom = exposure.digitalZoom {
+                exif[kCGImagePropertyExifDigitalZoomRatio] = zoom
+            }
+        }
+        var tiff: [CFString: Any] = [
+            kCGImagePropertyTIFFMake: camera.make,
+            kCGImagePropertyTIFFDateTime: timestamp.exifDateTime,
+        ]
+        if let model = camera.model {
+            tiff[kCGImagePropertyTIFFModel] = model
+        }
         var properties: [CFString: Any] = [
             kCGImageDestinationLossyCompressionQuality: 0.9,
             kCGImagePropertyOrientation: CGImagePropertyOrientation.up.rawValue,
-            kCGImagePropertyExifDictionary: [
-                kCGImagePropertyExifDateTimeOriginal: timestamp.exifDateTime,
-                kCGImagePropertyExifDateTimeDigitized: timestamp.exifDateTime,
-                kCGImagePropertyExifSubsecTimeOriginal: timestamp.exifSubSecond,
-                kCGImagePropertyExifSubsecTimeDigitized: timestamp.exifSubSecond,
-                kCGImagePropertyExifOffsetTimeOriginal: timestamp.exifOffset,
-                kCGImagePropertyExifOffsetTimeDigitized: timestamp.exifOffset,
-                kCGImagePropertyExifOffsetTime: timestamp.exifOffset,
-            ],
-            kCGImagePropertyTIFFDictionary: [
-                kCGImagePropertyTIFFMake: CameraIdentity.make,
-                kCGImagePropertyTIFFModel: CameraIdentity.model,
-                kCGImagePropertyTIFFDateTime: timestamp.exifDateTime,
-            ],
+            kCGImagePropertyExifDictionary: exif,
+            kCGImagePropertyTIFFDictionary: tiff,
         ]
         if let contentIdentifier {
             properties[kCGImagePropertyMakerAppleDictionary] = ["17": contentIdentifier]

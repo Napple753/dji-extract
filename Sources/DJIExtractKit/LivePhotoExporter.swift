@@ -33,9 +33,10 @@ public enum LivePhotoExporter {
         let stillPosition = frame.time.seconds
         let timestamp = clock.timestamp(at: stillPosition)
         let identifier = UUID().uuidString
+        let camera = await CameraMetadataReader.read(asset, frameAt: frame.time)
 
         let photoURL = workspace.file(named: "live.heic")
-        try FrameExporter.writeHEIC(frame.image, timestamp: timestamp, contentIdentifier: identifier, to: photoURL)
+        try FrameExporter.writeHEIC(frame.image, timestamp: timestamp, camera: camera, contentIdentifier: identifier, to: photoURL)
 
         let range = LivePhotoRange(stillPosition: stillPosition, sourceDuration: metadata.duration, length: length)
         let videoURL = workspace.file(named: "live.mov")
@@ -46,7 +47,7 @@ public enum LivePhotoExporter {
                 start: CMTime(seconds: range.start, preferredTimescale: 600_000),
                 duration: CMTime(seconds: range.duration, preferredTimescale: 600_000)),
             stillTime: frame.time,
-            items: QuickTimeMetadata.items(timestamp: timestamp, contentIdentifier: identifier),
+            items: QuickTimeMetadata.items(timestamp: timestamp, camera: camera, contentIdentifier: identifier),
             to: videoURL)
 
         return ExportedLivePhoto(

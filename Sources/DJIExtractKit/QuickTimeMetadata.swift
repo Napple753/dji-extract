@@ -3,12 +3,14 @@ import DJIExtractCore
 
 /// Top-level QuickTime metadata written into exported movies.
 enum QuickTimeMetadata {
-    static func items(timestamp: CaptureTimestamp, contentIdentifier: String? = nil) -> [AVMetadataItem] {
+    static func items(timestamp: CaptureTimestamp, camera: CameraInfo, contentIdentifier: String? = nil) -> [AVMetadataItem] {
         var items = [
             item(.quickTimeMetadataCreationDate, timestamp.quickTimeCreationDate),
-            item(.quickTimeMetadataMake, CameraIdentity.make),
-            item(.quickTimeMetadataModel, CameraIdentity.model),
+            item(.quickTimeMetadataMake, camera.make),
         ]
+        if let model = camera.model {
+            items.append(item(.quickTimeMetadataModel, model))
+        }
         if let contentIdentifier {
             items.append(item(AVMetadataIdentifier("mdta/com.apple.quicktime.content.identifier"), contentIdentifier))
         }

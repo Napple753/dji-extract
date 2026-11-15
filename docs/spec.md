@@ -180,7 +180,8 @@ file, so the time survives exporting.
 
 - Save with `PHAssetCreationRequest`, setting `creationDate` to the calculated time.
 - Request add-only permission (`.addOnly`); do not ask to read the library.
-- Put `DJI` and `Osmo Action 6` in the EXIF make and model.
+- Put `DJI` and the model read from the source (`OsmoAction6`) in the EXIF/QuickTime make and model,
+  and the frame's ISO, exposure time and digital zoom in the photo's EXIF (see findings).
 
 **Photo**
 

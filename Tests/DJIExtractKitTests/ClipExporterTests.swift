@@ -35,6 +35,9 @@ struct ClipExporterTests {
         let creation = try await AVMetadataItem.metadataItems(from: items, filteredByIdentifier: .quickTimeMetadataCreationDate)
             .first?.load(.stringValue)
         #expect(creation == clip.timestamp.quickTimeCreationDate)
+        let model = try await AVMetadataItem.metadataItems(from: items, filteredByIdentifier: .quickTimeMetadataModel)
+            .first?.load(.stringValue)
+        #expect(model == "OsmoAction6")
 
         // The exported first frame must be the source frame at `actualStart`, and differ from
         // its neighbours, otherwise the creation date would be off by a frame or more.

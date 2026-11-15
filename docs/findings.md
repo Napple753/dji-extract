@@ -81,6 +81,25 @@ to see whether a fixed pipeline delay can be separated out.
 - LRF is 8-bit H.264 1280×720; main file is 10-bit HEVC 4K. Preview colors will differ from
   the export for 10-bit/D-Log footage, as the spec anticipated.
 
+### Camera model and exposure (DJI `djmd` track)
+
+The MP4 carries a timed metadata track with format `djmd` (handler "CAM meta"), one protobuf
+sample per video frame (`dvtm_ac206.proto`). AVFoundation does not list this track at all, so
+the app reads it from the sample tables in `moov`. ExifTool's `DJI.pm` maps `ac206` onto the
+Osmo Action 4 (`ac203`) layout; the sample agrees with it:
+
+| Path | Meaning | Sample value |
+|---|---|---|
+| `1.1.10` (first sample only) | Model | `DJI OsmoAction6` |
+| `1.1.6` (first sample only) | Firmware | `10.00.34.29` |
+| `1.1.5` (first sample only) | Serial number | not exported |
+| `3.2.3.1` float | ISO | 3057 |
+| `3.2.4.1` packed varints | Shutter speed | 1/200 |
+| `3.2.5.1` float | Digital zoom | 1.0 |
+| `3.2.6.1` varint | Color temperature | 4113 K (no EXIF tag) |
+
+The file also has `©enc` = `DJI OsmoAction6`. No GPS, focal length or aperture in this sample.
+
 ### Split files
 
 Not verified — no long recording in the sample set yet.

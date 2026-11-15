@@ -36,9 +36,11 @@ struct FrameExporterTests {
         #expect(exif[kCGImagePropertyExifDateTimeOriginal] as? String == "2026:11:02 22:04:11")
         #expect(exif[kCGImagePropertyExifSubsecTimeOriginal] as? String == photo.timestamp.exifSubSecond)
         #expect(exif[kCGImagePropertyExifOffsetTimeOriginal] as? String == "+08:00")
+        #expect(exif[kCGImagePropertyExifISOSpeedRatings] as? [Int] == [3057])
+        #expect(exif[kCGImagePropertyExifExposureTime] as? Double == 0.005)
         let tiff = try #require(properties[kCGImagePropertyTIFFDictionary] as? [CFString: Any])
         #expect(tiff[kCGImagePropertyTIFFMake] as? String == "DJI")
-        #expect(tiff[kCGImagePropertyTIFFModel] as? String == "Osmo Action 6")
+        #expect(tiff[kCGImagePropertyTIFFModel] as? String == "OsmoAction6")
         let makerApple = properties[kCGImagePropertyMakerAppleDictionary] as? [String: Any]
         #expect(makerApple?["17"] as? String == contentIdentifier)
     }

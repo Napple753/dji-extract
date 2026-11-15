@@ -18,9 +18,3 @@ public struct CaptureClock: Hashable, Sendable {
         )
     }
 }
-
-/// Camera identity written into exported files.
-public enum CameraIdentity {
-    public static let make = "DJI"
-    public static let model = "Osmo Action 6"
-}

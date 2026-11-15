@@ -51,7 +51,7 @@ public enum ClipExporter {
         }
         let timestamp = clock.timestamp(at: start.seconds)
         session.timeRange = exportRange
-        session.metadata = QuickTimeMetadata.items(timestamp: timestamp)
+        session.metadata = QuickTimeMetadata.items(timestamp: timestamp, camera: await CameraMetadataReader.read(asset))
         session.shouldOptimizeForNetworkUse = false
 
         let url = workspace.file(named: "clip.mov")
